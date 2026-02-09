@@ -13,6 +13,7 @@
 
 <input type="text" id="message" placeholder="Type message">
 <button onclick="sendMessage()">Send</button>
+<button onclick="adminLogin()">Admin Login</button>
 
 <div id="chatBox"></div>
 <a href="index.html">⬅ Back to Home</a>
@@ -32,11 +33,24 @@ const firebaseConfig = {
   appId: "1:844615179260:web:2f197d1d330448c6dff079"
 };
 
-// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
-
-// Database reference
 var db = firebase.database().ref("chats");
+
+var isAdmin = false;
+
+// Admin login
+function adminLogin(){
+  var pass = prompt("Enter admin password:");
+  if(pass === "Rudra@12"){
+    isAdmin = true;
+    alert("Admin mode ON");
+
+    document.getElementById("chatBox").innerHTML = "";
+    showMessages();
+  } else {
+    alert("Wrong password");
+  }
+}
 
 function sendMessage() {
   var name = document.getElementById("username").value;
@@ -55,15 +69,36 @@ function sendMessage() {
   document.getElementById("message").value = "";
 }
 
-// Receive messages
-db.on("child_added", function(snapshot){
-  var data = snapshot.val();
-  var chatBox = document.getElementById("chatBox");
+// Show messages
+function showMessages(){
+  db.off(); // purana listener remove
+  db.on("child_added", function(snapshot){
+    var data = snapshot.val();
+    var key = snapshot.key;
+    var chatBox = document.getElementById("chatBox");
 
-  chatBox.innerHTML += `<p><b>${data.user}:</b> ${data.message}</p>`;
-});
+    let html = `<p id="${key}"><b>${data.user}:</b> ${data.message}`;
+
+    if(isAdmin){
+      html += ` <button onclick="deleteMsg('${key}')">❌</button>`;
+    }
+
+    html += `</p>`;
+    chatBox.innerHTML += html;
+  });
+}
+
+// Delete message
+function deleteMsg(key){
+  if(isAdmin){
+    firebase.database().ref("chats/" + key).remove();
+    document.getElementById(key).remove();
+  }
+}
+
+// normal user ke liye messages load
+showMessages();
 </script>
-
 
 </body>
 </html>
