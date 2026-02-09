@@ -103,3 +103,72 @@ button:active {
     font-size: 22px;
   }
 }
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
+
+header h1 {
+  font-size: 32px;
+}
+
+nav {
+  background: #222;
+  padding: 10px;
+}
+
+nav a {
+  color: white;
+  margin: 10px;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.card {
+  width: 200px;
+  height: 100px;
+  margin: 10px;
+  line-height: 100px;
+  font-size: 20px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+/* button effect */
+button:hover {
+  background: orange;
+}
+
+button:active {
+  transform: scale(0.9);
+}
+
+/* 📱 Mobile screen ke liye */
+@media (max-width: 600px) {
+  nav {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card {
+    width: 90%;
+    height: 80px;
+    font-size: 18px;
+  }
+
+  header h1 {
+    font-size: 22px;
+  }
+
+  button {
+    width: 90%;
+    font-size: 16px;
+  }
+}
