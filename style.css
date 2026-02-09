@@ -76,3 +76,30 @@ button:hover {
 button:active {
   transform: scale(0.7);
 }
+.cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.card {
+  width: 200px;
+  height: 100px;
+  margin: 10px;
+}
+
+/* Mobile screen ke liye */
+@media (max-width: 600px) {
+  nav {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card {
+    width: 90%;
+  }
+
+  header h1 {
+    font-size: 22px;
+  }
+}
