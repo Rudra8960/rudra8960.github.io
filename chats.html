@@ -1,22 +1,59 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Chats</title>
+  <title>Chat</title>
   <link rel="stylesheet" href="chat.css">
 </head>
 <body>
-<h1>💬 Chat System</h1>
 
-<div class="chat-box" id="chatBox"></div>
+<h2>Public Chat</h2>
 
-<div class="chat-input">
-  <input type="text" id="msgInput" placeholder="Type your message...">
-  <button onclick="sendMsg()">Send</button>
-</div>
+<input type="text" id="username" placeholder="Enter your name">
+<br><br>
 
-<a href="index.html">⬅ Back to Home</a>
+<input type="text" id="message" placeholder="Type message">
+<button onclick="sendMessage()">Send</button>
 
-<script src="chat.js"></script>
+<div id="chatBox"></div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<script>
+var firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  databaseURL: "https://YOUR_PROJECT.firebaseio.com",
+  projectId: "YOUR_PROJECT",
+};
+firebase.initializeApp(firebaseConfig);
+
+var db = firebase.database().ref("chats");
+
+function sendMessage() {
+  var name = document.getElementById("username").value;
+  var msg = document.getElementById("message").value;
+
+  if(name=="" || msg==""){
+    alert("Name and message required");
+    return;
+  }
+
+  db.push({
+    user: name,
+    message: msg
+  });
+
+  document.getElementById("message").value = "";
+}
+
+db.on("child_added", function(snapshot){
+  var data = snapshot.val();
+  var chatBox = document.getElementById("chatBox");
+
+  chatBox.innerHTML += `<p><b>${data.user}:</b> ${data.message}</p>`;
+});
+</script>
 
 </body>
 </html>
