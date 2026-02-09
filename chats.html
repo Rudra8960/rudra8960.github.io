@@ -16,25 +16,32 @@
 
 <div id="chatBox"></div>
 
+<!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
 <script>
-var firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  databaseURL: "https://YOUR_PROJECT.firebaseio.com",
-  projectId: "YOUR_PROJECT",
+const firebaseConfig = {
+  apiKey: "AIzaSyCy1reCJaNB1aG3UXT8LPpRR-CgQXXAdZk",
+  authDomain: "mychatapp-8ee22.firebaseapp.com",
+  databaseURL: "https://mychatapp-8ee22-default-rtdb.firebaseio.com",
+  projectId: "mychatapp-8ee22",
+  storageBucket: "mychatapp-8ee22.firebasestorage.app",
+  messagingSenderId: "844615179260",
+  appId: "1:844615179260:web:2f197d1d330448c6dff079"
 };
+
+// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
+// Database reference
 var db = firebase.database().ref("chats");
 
 function sendMessage() {
   var name = document.getElementById("username").value;
   var msg = document.getElementById("message").value;
 
-  if(name=="" || msg==""){
+  if(name == "" || msg == ""){
     alert("Name and message required");
     return;
   }
@@ -47,6 +54,7 @@ function sendMessage() {
   document.getElementById("message").value = "";
 }
 
+// Receive messages
 db.on("child_added", function(snapshot){
   var data = snapshot.val();
   var chatBox = document.getElementById("chatBox");
