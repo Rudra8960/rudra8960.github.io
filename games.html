@@ -5,8 +5,32 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
 <h1>🎮 Games Page</h1>
-<p>Games are fun to play!</p>
+<p>Button par click karo aur score badhao!</p>
+
+<h2>Score: <span id="score">0</span></h2>
+
+<button onclick="increaseScore()">Click Me 🎯
+ </button> <h2>🎮 Online Game</h2>
+
+<iframe 
+  src="https://poki.com/en/g/carrom-multiplayer" 
+  width="100" 
+  height="100">
+</iframe>
+
+
+<br><br>
 <a href="index.html">⬅ Back to Home</a>
+
+<script>
+  let score = 0;
+  function increaseScore() {
+    score++;
+    document.getElementById("score").innerText = score;
+  }
+</script>
+
 </body>
 </html>
