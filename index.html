@@ -3,33 +3,94 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title> our world</title>
+  <title>🌍 Our World</title>
   <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+  <div class="gradient-bg">
+    <header class="header">
+      <div class="container">
+        <h1 class="logo">
+          <i class="fas fa-globe-americas"></i>
+          Our World
+        </h1>
+        <div class="header-menu-toggle">
+          <i class="fas fa-bars"></i>
+        </div>
+      </div>
+    </header>
 
-<header>
-  <h1>🌍 Our World</h1>
-</header>
+    <nav class="navbar">
+      <div class="container">
+        <a href="index.html" class="nav-link active"><i class="fas fa-home"></i> Home</a>
+        <a href="apps.html" class="nav-link"><i class="fas fa-mobile-alt"></i> Apps</a>
+        <a href="games.html" class="nav-link"><i class="fas fa-gamepad"></i> Games</a>
+        <a href="contact.html" class="nav-link"><i class="fas fa-envelope"></i> Contact</a>
+      </div>
+    </nav>
 
-<nav>
-  <a href="index.html">Home</a>
-  <a href="apps.html">Apps</a>
-  <a href="games.html">Games</a>
-  <a href="contact.html">Contact</a>
-</nav>
+    <main class="main-content">
+      <div class="container">
+        <section class="cards-grid">
+          <div class="card red" onclick="goNotes()">
+            <div class="card-icon">📘</div>
+            <h3>Notes</h3>
+            <div class="card-overlay">
+              <i class="fas fa-arrow-right"></i>
+            </div>
+          </div>
+          
+          <div class="card blue" onclick="goGames()">
+            <div class="card-icon">🎮</div>
+            <h3>Games</h3>
+            <div class="card-overlay">
+              <i class="fas fa-arrow-right"></i>
+            </div>
+          </div>
+          
+          <div class="card green" onclick="goTools()">
+            <div class="card-icon">🤖</div>
+            <h3>Tools</h3>
+            <div class="card-overlay">
+              <i class="fas fa-arrow-right"></i>
+            </div>
+          </div>
+          
+          <div class="card purple" onclick="goContact()">
+            <div class="card-icon">📞</div>
+            <h3>Contact</h3>
+            <div class="card-overlay">
+              <i class="fas fa-arrow-right"></i>
+            </div>
+          </div>
+          
+          <div class="card yellow" onclick="goChats()">
+            <div class="card-icon">💬</div>
+            <h3>Chats</h3>
+            <div class="card-overlay">
+              <i class="fas fa-arrow-right"></i>
+            </div>
+          </div>
+        </section>
 
-<section class="cards">
-  <div class="card red" onclick="goNotes()">📘 Notes</div>
-  <div class="card blue" onclick="goGames()">🎮 Games</div>
-  <div class="card green" onclick="goTools()">🤖 Tools</div>
-  <div class="card purple" onclick="goContact()">📞 Contact</div>
-  <div class="card yellow" onclick="goChats()">💬 Chats</div>
-</section>
+        <div class="cta-section">
+          <button class="cta-button" onclick="showMsg()">
+            <span>Click Me</span>
+            <i class="fas fa-party-horn"></i>
+          </button>
+        </div>
+      </div>
+    </main>
 
-<button onclick="showMsg()">Click Me 🎉</button>
+    <footer class="footer">
+      <div class="container">
+        <p>&copy; 2024 Our World. Explore the possibilities.</p>
+      </div>
+    </footer>
+  </div>
 
-<script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
