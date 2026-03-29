@@ -1,12 +1,873 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Notes</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudyVault — Smart Notes Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --card: #1a1a24;
+    --border: #2a2a3a;
+    --accent: #7c6aff;
+    --accent2: #ff6a9b;
+    --accent3: #6affd4;
+    --text: #e8e8f0;
+    --muted: #7a7a9a;
+    --glow: rgba(124,106,255,0.3);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── Background ─── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 10% 10%, rgba(124,106,255,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 90% 80%, rgba(255,106,155,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 50% at 50% 50%, rgba(106,255,212,0.04) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* ─── Header ─── */
+  header {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(10,10,15,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 68px;
+  }
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 1.4rem;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
+  }
+  .logo span { color: var(--accent3); -webkit-text-fill-color: var(--accent3); }
+  nav { display: flex; gap: 0.5rem; }
+  nav button {
+    background: none; border: 1px solid transparent;
+    color: var(--muted); font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem; padding: 0.4rem 1rem; border-radius: 8px;
+    cursor: pointer; transition: all 0.2s;
+  }
+  nav button:hover, nav button.active {
+    color: var(--text); border-color: var(--border);
+    background: var(--surface);
+  }
+  nav button.active { color: var(--accent); border-color: var(--accent); }
+
+  /* ─── Hero ─── */
+  .hero {
+    position: relative; z-index: 1;
+    text-align: center;
+    padding: 5rem 2rem 3rem;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    background: rgba(124,106,255,0.12); border: 1px solid rgba(124,106,255,0.3);
+    color: var(--accent); font-size: 0.75rem; font-weight: 500;
+    padding: 0.35rem 0.9rem; border-radius: 100px;
+    margin-bottom: 1.5rem; letter-spacing: 0.5px;
+    animation: fadeDown 0.6s ease both;
+  }
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
+    font-weight: 800; line-height: 1.1;
+    letter-spacing: -1.5px;
+    animation: fadeUp 0.7s ease 0.1s both;
+  }
+  .hero h1 .hi { color: var(--accent); }
+  .hero h1 .h2 { color: var(--accent2); }
+  .hero p {
+    color: var(--muted); font-size: 1.05rem; margin-top: 1rem;
+    max-width: 520px; margin-inline: auto; line-height: 1.65;
+    animation: fadeUp 0.7s ease 0.2s both;
+  }
+  .stats-row {
+    display: flex; justify-content: center; gap: 2.5rem;
+    margin-top: 2.5rem;
+    animation: fadeUp 0.7s ease 0.3s both;
+  }
+  .stat { text-align: center; }
+  .stat-num {
+    font-family: 'Syne', sans-serif; font-size: 1.6rem; font-weight: 700;
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .stat-label { font-size: 0.78rem; color: var(--muted); margin-top: 0.1rem; }
+
+  /* ─── Main layout ─── */
+  main { position: relative; z-index: 1; padding: 0 2rem 4rem; max-width: 1200px; margin: 0 auto; }
+
+  /* ─── Upload Section ─── */
+  .section-title {
+    font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 700;
+    margin-bottom: 1.2rem; display: flex; align-items: center; gap: 0.6rem;
+  }
+  .section-title::before {
+    content: ''; display: block; width: 4px; height: 20px;
+    background: linear-gradient(180deg, var(--accent), var(--accent2));
+    border-radius: 2px;
+  }
+  .upload-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-bottom: 2.5rem; }
+  @media(max-width:640px){ .upload-grid { grid-template-columns: 1fr; } }
+
+  .upload-zone {
+    border: 2px dashed var(--border);
+    border-radius: 16px;
+    background: var(--surface);
+    padding: 2.5rem 1.5rem;
+    text-align: center; cursor: pointer;
+    transition: all 0.25s; position: relative; overflow: hidden;
+  }
+  .upload-zone:hover, .upload-zone.dragover {
+    border-color: var(--accent);
+    background: rgba(124,106,255,0.06);
+    box-shadow: 0 0 30px var(--glow);
+  }
+  .upload-zone input { display: none; }
+  .upload-icon {
+    font-size: 2.5rem; margin-bottom: 0.8rem;
+    display: block;
+    filter: grayscale(0.3);
+  }
+  .upload-zone h3 {
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem;
+    margin-bottom: 0.3rem;
+  }
+  .upload-zone p { color: var(--muted); font-size: 0.82rem; line-height: 1.5; }
+  .upload-zone .file-types {
+    margin-top: 1rem; display: flex; gap: 0.4rem; justify-content: center; flex-wrap: wrap;
+  }
+  .badge {
+    background: rgba(124,106,255,0.15); color: var(--accent);
+    font-size: 0.7rem; font-weight: 600;
+    padding: 0.2rem 0.6rem; border-radius: 6px; letter-spacing: 0.3px;
+  }
+  .badge.img { background: rgba(255,106,155,0.12); color: var(--accent2); }
+  .badge.green { background: rgba(106,255,212,0.1); color: var(--accent3); }
+
+  /* ─── Upload Button ─── */
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), #a06aff);
+    color: #fff; font-family: 'DM Sans', sans-serif;
+    font-weight: 600; font-size: 0.9rem;
+    border: none; padding: 0.75rem 2rem;
+    border-radius: 12px; cursor: pointer;
+    transition: all 0.2s; box-shadow: 0 4px 20px rgba(124,106,255,0.35);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(124,106,255,0.5); }
+  .btn-secondary {
+    background: var(--card); color: var(--text);
+    border: 1px solid var(--border);
+    font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.85rem;
+    padding: 0.65rem 1.4rem; border-radius: 10px; cursor: pointer; transition: all 0.2s;
+  }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ─── File List ─── */
+  #fileList {
+    display: flex; flex-direction: column; gap: 0.7rem;
+    margin-bottom: 2.5rem;
+  }
+  .file-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0.9rem 1.2rem;
+    display: flex; align-items: center; gap: 1rem;
+    animation: slideIn 0.3s ease;
+    transition: border-color 0.2s;
+  }
+  .file-item:hover { border-color: var(--accent); }
+  .file-thumb {
+    width: 48px; height: 48px; border-radius: 8px;
+    object-fit: cover; flex-shrink: 0;
+    border: 1px solid var(--border);
+  }
+  .file-thumb-pdf {
+    width: 48px; height: 48px; border-radius: 8px;
+    background: rgba(124,106,255,0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem; flex-shrink: 0;
+  }
+  .file-info { flex: 1; min-width: 0; }
+  .file-name {
+    font-weight: 500; font-size: 0.9rem;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .file-meta { color: var(--muted); font-size: 0.75rem; margin-top: 0.15rem; }
+  .file-actions { display: flex; gap: 0.5rem; }
+  .icon-btn {
+    background: none; border: 1px solid var(--border);
+    color: var(--muted); width: 32px; height: 32px;
+    border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 0.85rem; transition: all 0.2s;
+  }
+  .icon-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+
+  /* ─── Search ─── */
+  .search-wrapper {
+    display: flex; gap: 0.8rem; margin-bottom: 2.5rem; align-items: stretch;
+  }
+  .search-input-wrap {
+    flex: 1; position: relative;
+  }
+  .search-input-wrap input {
+    width: 100%; background: var(--card);
+    border: 1px solid var(--border); color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-size: 0.95rem;
+    padding: 0.85rem 1rem 0.85rem 2.8rem;
+    border-radius: 12px; outline: none; transition: border-color 0.2s;
+  }
+  .search-input-wrap input:focus { border-color: var(--accent); }
+  .search-input-wrap input::placeholder { color: var(--muted); }
+  .search-icon {
+    position: absolute; left: 0.9rem; top: 50%; transform: translateY(-50%);
+    color: var(--muted); font-size: 1rem; pointer-events: none;
+  }
+
+  /* ─── Notes Grid ─── */
+  .notes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.2rem;
+    margin-bottom: 3rem;
+  }
+  .note-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; overflow: hidden;
+    cursor: pointer; transition: all 0.25s;
+    animation: fadeUp 0.4s ease both;
+    position: relative;
+  }
+  .note-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(124,106,255,0.2);
+  }
+  .note-card-preview {
+    height: 130px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 3rem;
+    position: relative; overflow: hidden;
+  }
+  .note-card-preview.pdf { background: linear-gradient(135deg, rgba(124,106,255,0.2), rgba(124,106,255,0.05)); }
+  .note-card-preview.img { background: var(--bg); }
+  .note-card-preview img { width: 100%; height: 100%; object-fit: cover; }
+  .note-card-body { padding: 1rem 1.1rem 1.1rem; }
+  .note-card-title {
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.95rem;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    margin-bottom: 0.3rem;
+  }
+  .note-card-sub { color: var(--muted); font-size: 0.75rem; }
+  .note-card-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 0.8rem;
+  }
+  .tag {
+    font-size: 0.68rem; font-weight: 600; letter-spacing: 0.3px;
+    padding: 0.2rem 0.6rem; border-radius: 6px;
+  }
+  .tag-pdf { background: rgba(124,106,255,0.15); color: var(--accent); }
+  .tag-img { background: rgba(255,106,155,0.12); color: var(--accent2); }
+
+  /* ─── AI Q&A ─── */
+  .qa-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 3rem;
+  }
+  .qa-header {
+    display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1.5rem;
+  }
+  .ai-icon {
+    width: 40px; height: 40px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+  }
+  .qa-header h2 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.1rem; }
+  .qa-header p { color: var(--muted); font-size: 0.8rem; }
+  .chat-log {
+    min-height: 160px; max-height: 340px;
+    overflow-y: auto; padding: 1rem;
+    background: var(--bg); border-radius: 12px;
+    border: 1px solid var(--border);
+    margin-bottom: 1rem;
+    display: flex; flex-direction: column; gap: 0.8rem;
+    scroll-behavior: smooth;
+  }
+  .chat-log::-webkit-scrollbar { width: 4px; }
+  .chat-log::-webkit-scrollbar-track { background: transparent; }
+  .chat-log::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  .msg {
+    display: flex; gap: 0.6rem; align-items: flex-start;
+    animation: fadeUp 0.3s ease;
+  }
+  .msg.user { flex-direction: row-reverse; }
+  .msg-avatar {
+    width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; font-weight: 700;
+  }
+  .msg.user .msg-avatar { background: linear-gradient(135deg, var(--accent), #a06aff); }
+  .msg.ai .msg-avatar { background: linear-gradient(135deg, var(--accent2), #ff9a6a); }
+  .msg-bubble {
+    max-width: 80%; padding: 0.65rem 0.9rem;
+    border-radius: 12px; font-size: 0.87rem; line-height: 1.55;
+  }
+  .msg.user .msg-bubble { background: rgba(124,106,255,0.18); border-bottom-right-radius: 4px; }
+  .msg.ai .msg-bubble { background: var(--card); border-bottom-left-radius: 4px; color: var(--text); }
+  .typing-dots span {
+    display: inline-block; width: 6px; height: 6px;
+    background: var(--muted); border-radius: 50%; margin: 0 1px;
+    animation: bounce 1s infinite;
+  }
+  .typing-dots span:nth-child(2) { animation-delay: 0.15s; }
+  .typing-dots span:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes bounce {
+    0%,60%,100% { transform: translateY(0); }
+    30% { transform: translateY(-6px); }
+  }
+  .qa-input-row { display: flex; gap: 0.7rem; }
+  .qa-input-row input {
+    flex: 1; background: var(--card);
+    border: 1px solid var(--border); color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+    padding: 0.75rem 1rem; border-radius: 12px; outline: none;
+    transition: border-color 0.2s;
+  }
+  .qa-input-row input:focus { border-color: var(--accent); }
+  .qa-input-row input::placeholder { color: var(--muted); }
+
+  /* ─── View Modal ─── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; z-index: 200;
+    background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+    align-items: center; justify-content: center; padding: 1.5rem;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 20px; width: 100%; max-width: 860px;
+    max-height: 90vh; display: flex; flex-direction: column;
+    animation: scaleIn 0.3s ease;
+  }
+  .modal-header {
+    padding: 1.2rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .modal-header h3 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; }
+  .modal-close {
+    background: none; border: 1px solid var(--border);
+    color: var(--muted); width: 34px; height: 34px;
+    border-radius: 8px; cursor: pointer; font-size: 1.1rem;
+    transition: all 0.2s; display: flex; align-items: center; justify-content: center;
+  }
+  .modal-close:hover { border-color: var(--accent2); color: var(--accent2); }
+  .modal-body {
+    flex: 1; overflow: auto; padding: 1.5rem;
+    display: flex; align-items: flex-start; justify-content: center;
+  }
+  .modal-body img {
+    max-width: 100%; max-height: 70vh;
+    object-fit: contain; border-radius: 8px;
+  }
+  .modal-body iframe {
+    width: 100%; height: 70vh; border: none; border-radius: 8px;
+  }
+
+  /* ─── Toast ─── */
+  .toast {
+    position: fixed; bottom: 2rem; right: 2rem; z-index: 999;
+    background: var(--card); border: 1px solid var(--border);
+    color: var(--text); font-size: 0.85rem;
+    padding: 0.75rem 1.2rem; border-radius: 12px;
+    display: flex; align-items: center; gap: 0.5rem;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    transform: translateY(20px); opacity: 0;
+    transition: all 0.3s;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { border-color: var(--accent3); }
+  .toast.error { border-color: var(--accent2); }
+
+  /* ─── Empty state ─── */
+  .empty {
+    text-align: center; padding: 4rem 2rem; color: var(--muted);
+  }
+  .empty-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.4; }
+  .empty h3 { font-family: 'Syne', sans-serif; font-size: 1rem; color: var(--text); margin-bottom: 0.3rem; }
+  .empty p { font-size: 0.85rem; }
+
+  /* ─── Filters ─── */
+  .filter-row {
+    display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap;
+  }
+  .filter-btn {
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--muted); font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem; padding: 0.4rem 0.9rem;
+    border-radius: 8px; cursor: pointer; transition: all 0.2s;
+  }
+  .filter-btn:hover, .filter-btn.active {
+    background: rgba(124,106,255,0.12); border-color: var(--accent); color: var(--accent);
+  }
+
+  /* ─── Animations ─── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-12px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
+  /* ─── Sections toggle ─── */
+  .page { display: none; }
+  .page.active { display: block; animation: fadeUp 0.4s ease; }
+
+  .progress-bar {
+    height: 3px; background: var(--border); border-radius: 3px; margin-top: 0.6rem; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; border-radius: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent3));
+    transition: width 0.3s;
+  }
+
+  /* responsive header */
+  @media(max-width:540px){
+    header { padding: 0 1rem; }
+    nav button { font-size: 0.75rem; padding: 0.35rem 0.7rem; }
+    main { padding: 0 1rem 4rem; }
+    .hero { padding: 3rem 1rem 2rem; }
+    .stats-row { gap: 1.5rem; }
+  }
+</style>
 </head>
 <body>
-<h1>📘 Notes Page</h1>
-<p>Write your notes here.</p>
-<a href="index.html">⬅ Back to Home</a>
+
+<header>
+  <div class="logo">Study<span>Vault</span></div>
+  <nav>
+    <button class="active" onclick="switchTab('home',this)">🏠 Home</button>
+    <button onclick="switchTab('upload',this)">📤 Upload</button>
+    <button onclick="switchTab('notes',this)">📚 Notes</button>
+    <button onclick="switchTab('ask',this)">🤖 Ask AI</button>
+  </nav>
+</header>
+
+<!-- ══ HOME ══ -->
+<section id="home" class="page active">
+  <div class="hero">
+    <div class="hero-badge">✨ AI-Powered Study Platform</div>
+    <h1>Upload Notes,<br><span class="hi">Find Answers</span><br>Get <span class="h2">Smarter</span></h1>
+    <p>Upload your PDFs and images, search for topics instantly, and ask AI to explain anything from your notes.</p>
+    <div class="stats-row">
+      <div class="stat"><div class="stat-num" id="statFiles">0</div><div class="stat-label">Notes Uploaded</div></div>
+      <div class="stat"><div class="stat-num" id="statPdfs">0</div><div class="stat-label">PDFs</div></div>
+      <div class="stat"><div class="stat-num" id="statImgs">0</div><div class="stat-label">Images</div></div>
+    </div>
+    <div style="margin-top:2rem; display:flex; gap:0.8rem; justify-content:center; flex-wrap:wrap;">
+      <button class="btn-primary" onclick="switchTabName('upload')">📤 Upload Notes</button>
+      <button class="btn-secondary" onclick="switchTabName('ask')">🤖 Ask AI a Question</button>
+    </div>
+  </div>
+</section>
+
+<!-- ══ UPLOAD ══ -->
+<section id="upload" class="page">
+  <main>
+    <div style="height:2rem"></div>
+    <div class="section-title">Upload Your Notes</div>
+    <div class="upload-grid">
+      <!-- PDF -->
+      <div class="upload-zone" id="pdfZone" onclick="document.getElementById('pdfInput').click()"
+        ondragover="handleDrag(event,'pdfZone')" ondragleave="leaveDrag('pdfZone')" ondrop="handleDrop(event,'pdf')">
+        <input type="file" id="pdfInput" accept=".pdf" multiple onchange="processFiles(this.files,'pdf')">
+        <span class="upload-icon">📄</span>
+        <h3>Drop PDF Notes Here</h3>
+        <p>Chapter notes, question papers,<br>textbook PDFs, study material</p>
+        <div class="file-types">
+          <span class="badge">PDF</span>
+          <span class="badge green">Multiple Files</span>
+        </div>
+      </div>
+      <!-- Image -->
+      <div class="upload-zone" id="imgZone" onclick="document.getElementById('imgInput').click()"
+        ondragover="handleDrag(event,'imgZone')" ondragleave="leaveDrag('imgZone')" ondrop="handleDrop(event,'img')">
+        <input type="file" id="imgInput" accept="image/*" multiple onchange="processFiles(this.files,'img')">
+        <span class="upload-icon">🖼️</span>
+        <h3>Drop Image Notes Here</h3>
+        <p>Handwritten notes photos,<br>diagrams, whiteboard snaps</p>
+        <div class="file-types">
+          <span class="badge img">JPG</span>
+          <span class="badge img">PNG</span>
+          <span class="badge img">WEBP</span>
+          <span class="badge green">Multiple</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">Uploaded Files</div>
+    <div id="fileList">
+      <div class="empty" id="emptyFiles">
+        <div class="empty-icon">📭</div>
+        <h3>No files uploaded yet</h3>
+        <p>Upload PDFs or images above to get started</p>
+      </div>
+    </div>
+  </main>
+</section>
+
+<!-- ══ NOTES ══ -->
+<section id="notes" class="page">
+  <main>
+    <div style="height:2rem"></div>
+    <div class="section-title">My Notes Library</div>
+    <div class="search-wrapper">
+      <div class="search-input-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Search by filename or type..." oninput="filterNotes()">
+      </div>
+      <button class="btn-primary" onclick="filterNotes()">Search</button>
+    </div>
+    <div class="filter-row">
+      <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+      <button class="filter-btn" onclick="setFilter('pdf',this)">📄 PDFs</button>
+      <button class="filter-btn" onclick="setFilter('img',this)">🖼️ Images</button>
+    </div>
+    <div class="notes-grid" id="notesGrid">
+      <div class="empty" style="grid-column:1/-1" id="emptyNotes">
+        <div class="empty-icon">📚</div>
+        <h3>No notes yet</h3>
+        <p>Go to Upload tab to add your study notes</p>
+      </div>
+    </div>
+  </main>
+</section>
+
+<!-- ══ ASK AI ══ -->
+<section id="ask" class="page">
+  <main>
+    <div style="height:2rem"></div>
+    <div class="section-title">AI Study Assistant</div>
+    <div class="qa-section">
+      <div class="qa-header">
+        <div class="ai-icon">🤖</div>
+        <div>
+          <h2>Ask Anything About Your Notes</h2>
+          <p>Get instant explanations, summaries, and solutions</p>
+        </div>
+      </div>
+      <div class="chat-log" id="chatLog">
+        <div class="msg ai">
+          <div class="msg-avatar">AI</div>
+          <div class="msg-bubble">👋 Hi! I'm your AI study assistant. Ask me any question — I'll explain concepts, solve problems, or help you understand your notes. What would you like to know?</div>
+        </div>
+      </div>
+      <div class="qa-input-row">
+        <input type="text" id="qaInput" placeholder="e.g. Explain Newton's second law, or solve this integral..." onkeydown="if(event.key==='Enter')sendQuestion()">
+        <button class="btn-primary" onclick="sendQuestion()">Ask ✦</button>
+      </div>
+      <div style="margin-top:0.8rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
+        <button class="btn-secondary" onclick="quickQ('Explain the key concepts from my uploaded notes')">📝 Summarize my notes</button>
+        <button class="btn-secondary" onclick="quickQ('Give me 5 practice questions on this topic')">❓ Practice questions</button>
+        <button class="btn-secondary" onclick="quickQ('What are the important formulas I should remember?')">📐 Key formulas</button>
+      </div>
+    </div>
+  </main>
+</section>
+
+<!-- View Modal -->
+<div class="modal-overlay" id="viewModal" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle">Preview</h3>
+      <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+  // ─── State ───
+  let files = JSON.parse(sessionStorage.getItem('svFiles')||'[]');
+  let activeFilter = 'all';
+  let currentFile = null;
+
+  // ─── Tab Navigation ───
+  function switchTab(id, btn) {
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    if(btn) btn.classList.add('active');
+    if(id==='notes') renderNotes();
+    if(id==='home') updateStats();
+  }
+  function switchTabName(id) {
+    const btns = document.querySelectorAll('nav button');
+    const order = ['home','upload','notes','ask'];
+    const idx = order.indexOf(id);
+    if(idx>=0) switchTab(id, btns[idx]);
+  }
+
+  // ─── Drag & Drop ───
+  function handleDrag(e,zoneId) {
+    e.preventDefault();
+    document.getElementById(zoneId).classList.add('dragover');
+  }
+  function leaveDrag(zoneId) {
+    document.getElementById(zoneId).classList.remove('dragover');
+  }
+  function handleDrop(e, type) {
+    e.preventDefault();
+    const zoneId = type==='pdf'?'pdfZone':'imgZone';
+    document.getElementById(zoneId).classList.remove('dragover');
+    processFiles(e.dataTransfer.files, type);
+  }
+
+  // ─── Process Files ───
+  function processFiles(fileList, type) {
+    Array.from(fileList).forEach(file => {
+      if(type==='pdf' && !file.name.toLowerCase().endsWith('.pdf')) { showToast('Only PDF files allowed here','error'); return; }
+      if(type==='img' && !file.type.startsWith('image/')) { showToast('Only image files allowed here','error'); return; }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const entry = {
+          id: Date.now() + Math.random(),
+          name: file.name,
+          type: type,
+          size: formatSize(file.size),
+          date: new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}),
+          data: e.target.result
+        };
+        files.push(entry);
+        sessionStorage.setItem('svFiles', JSON.stringify(files));
+        renderFileList();
+        updateStats();
+        showToast('✅ ' + file.name + ' uploaded!', 'success');
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // ─── File List ───
+  function renderFileList() {
+    const list = document.getElementById('fileList');
+    const empty = document.getElementById('emptyFiles');
+    if(files.length === 0) { empty.style.display='block'; return; }
+    empty.style.display = 'none';
+    list.innerHTML = '';
+    files.forEach(f => {
+      const el = document.createElement('div');
+      el.className = 'file-item';
+      const thumb = f.type==='img'
+        ? `<img class="file-thumb" src="${f.data}" alt="">`
+        : `<div class="file-thumb-pdf">📄</div>`;
+      el.innerHTML = `
+        ${thumb}
+        <div class="file-info">
+          <div class="file-name">${f.name}</div>
+          <div class="file-meta">${f.size} &nbsp;·&nbsp; ${f.date}</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
+        </div>
+        <div class="file-actions">
+          <button class="icon-btn" title="Preview" onclick="previewFile('${f.id}')">👁</button>
+          <button class="icon-btn" title="Delete" onclick="deleteFile('${f.id}')">🗑</button>
+        </div>`;
+      list.appendChild(el);
+    });
+  }
+
+  // ─── Notes Grid ───
+  function renderNotes() {
+    const grid = document.getElementById('notesGrid');
+    const empty = document.getElementById('emptyNotes');
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    let shown = files.filter(f=>{
+      const typeMatch = activeFilter==='all' || f.type===activeFilter;
+      const nameMatch = f.name.toLowerCase().includes(q);
+      return typeMatch && nameMatch;
+    });
+    if(shown.length===0) { grid.innerHTML=''; grid.appendChild(empty); empty.style.display='block'; return; }
+    empty.style.display='none';
+    grid.innerHTML = shown.map((f,i)=>{
+      const preview = f.type==='img'
+        ? `<div class="note-card-preview img"><img src="${f.data}" alt=""></div>`
+        : `<div class="note-card-preview pdf">📄</div>`;
+      return `<div class="note-card" style="animation-delay:${i*0.05}s" onclick="previewFile('${f.id}')">
+        ${preview}
+        <div class="note-card-body">
+          <div class="note-card-title">${f.name}</div>
+          <div class="note-card-sub">${f.size} · ${f.date}</div>
+          <div class="note-card-footer">
+            <span class="tag ${f.type==='pdf'?'tag-pdf':'tag-img'}">${f.type.toUpperCase()}</span>
+            <button class="icon-btn" title="Delete" onclick="event.stopPropagation();deleteFile('${f.id}')">🗑</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function filterNotes() { renderNotes(); }
+  function setFilter(type, btn) {
+    activeFilter = type;
+    document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    renderNotes();
+  }
+
+  // ─── Delete ───
+  function deleteFile(id) {
+    files = files.filter(f=>String(f.id)!==String(id));
+    sessionStorage.setItem('svFiles', JSON.stringify(files));
+    renderFileList(); renderNotes(); updateStats();
+    showToast('🗑 File removed','error');
+  }
+
+  // ─── Preview Modal ───
+  function previewFile(id) {
+    const f = files.find(f=>String(f.id)===String(id));
+    if(!f) return;
+    document.getElementById('modalTitle').textContent = f.name;
+    const body = document.getElementById('modalBody');
+    if(f.type==='img') {
+      body.innerHTML = `<img src="${f.data}" alt="${f.name}">`;
+    } else {
+      body.innerHTML = `<iframe src="${f.data}" title="${f.name}"></iframe>`;
+    }
+    document.getElementById('viewModal').classList.add('open');
+  }
+  function closeModal(e) { if(e.target===document.getElementById('viewModal')) closeModalDirect(); }
+  function closeModalDirect() {
+    document.getElementById('viewModal').classList.remove('open');
+    document.getElementById('modalBody').innerHTML = '';
+  }
+
+  // ─── AI Q&A ───
+  async function sendQuestion() {
+    const input = document.getElementById('qaInput');
+    const q = input.value.trim();
+    if(!q) return;
+    input.value = '';
+    appendMsg(q, 'user');
+    const typing = appendTyping();
+
+    // Build context from uploaded file names
+    const fileContext = files.length
+      ? `The student has uploaded these notes: ${files.map(f=>f.name).join(', ')}. `
+      : '';
+
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          system: `You are a friendly, expert study assistant helping students understand their notes and solve questions. ${fileContext}Give clear, structured answers with examples when helpful. Use simple language. If it's a math/science problem, show step-by-step working.`,
+          messages: [{ role: 'user', content: q }]
+        })
+      });
+      const data = await res.json();
+      removeTyping(typing);
+      const answer = data?.content?.[0]?.text || 'Sorry, I could not get a response. Please try again.';
+      appendMsg(answer, 'ai');
+    } catch(err) {
+      removeTyping(typing);
+      appendMsg('⚠️ Could not connect to AI. Please check your internet connection or API setup.', 'ai');
+    }
+  }
+
+  function quickQ(q) {
+    document.getElementById('qaInput').value = q;
+    sendQuestion();
+    switchTabName('ask');
+  }
+
+  function appendMsg(text, role) {
+    const log = document.getElementById('chatLog');
+    const el = document.createElement('div');
+    el.className = `msg ${role}`;
+    el.innerHTML = `<div class="msg-avatar">${role==='user'?'You':'AI'}</div>
+      <div class="msg-bubble">${text.replace(/\n/g,'<br>')}</div>`;
+    log.appendChild(el);
+    log.scrollTop = log.scrollHeight;
+    return el;
+  }
+  function appendTyping() {
+    const log = document.getElementById('chatLog');
+    const el = document.createElement('div');
+    el.className = 'msg ai';
+    el.innerHTML = `<div class="msg-avatar">AI</div>
+      <div class="msg-bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
+    log.appendChild(el);
+    log.scrollTop = log.scrollHeight;
+    return el;
+  }
+  function removeTyping(el) { el && el.remove(); }
+
+  // ─── Stats ───
+  function updateStats() {
+    document.getElementById('statFiles').textContent = files.length;
+    document.getElementById('statPdfs').textContent = files.filter(f=>f.type==='pdf').length;
+    document.getElementById('statImgs').textContent = files.filter(f=>f.type==='img').length;
+  }
+
+  // ─── Toast ───
+  function showToast(msg, type='success') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show ' + type;
+    setTimeout(()=>t.classList.remove('show'), 3000);
+  }
+
+  // ─── Utils ───
+  function formatSize(bytes) {
+    if(bytes < 1024) return bytes+'B';
+    if(bytes < 1024*1024) return (bytes/1024).toFixed(1)+'KB';
+    return (bytes/(1024*1024)).toFixed(1)+'MB';
+  }
+
+  // ─── Init ───
+  renderFileList();
+  updateStats();
+</script>
 </body>
 </html>

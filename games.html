@@ -1,36 +1,473 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Games</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🎮 Games - Our World</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      line-height: 1.6;
+      color: #333;
+      overflow-x: hidden;
+    }
+
+    .gradient-bg {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 50%, #43e97b 100%);
+      background-attachment: fixed;
+      position: relative;
+    }
+
+    .gradient-bg::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="80" r="0.8" fill="rgba(255,255,255,0.05)"/></svg>');
+      pointer-events: none;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Header */
+    .header {
+      padding: 1.5rem 0;
+      backdrop-filter: blur(20px);
+      background: rgba(255, 255, 255, 0.15);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .header .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 2.2rem;
+      font-weight: 700;
+      background: linear-gradient(45deg, #fff, rgba(255,255,255,0.9));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Navbar */
+    .navbar {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 80px;
+      z-index: 999;
+    }
+
+    .navbar .container {
+      display: flex;
+      justify-content: center;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 1rem 2rem;
+      color: #333;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      position: relative;
+      border-radius: 50px;
+      margin: 0 0.5rem;
+    }
+
+    .nav-link i {
+      font-size: 1.1rem;
+    }
+
+    .nav-link:hover,
+    .nav-link.active {
+      background: linear-gradient(45deg, #4facfe, #00f2fe);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(79, 172, 254, 0.4);
+    }
+
+    /* Main Content */
+    .main-content {
+      padding: 4rem 0;
+    }
+
+    .page-title {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .page-title h1 {
+      font-size: 3.5rem;
+      font-weight: 700;
+      background: linear-gradient(45deg, #fff, #f0f9ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 1rem;
+    }
+
+    .page-title p {
+      font-size: 1.3rem;
+      color: rgba(255,255,255,0.9);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 2.5rem;
+      margin-bottom: 4rem;
+    }
+
+    .game-card {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(20px);
+      border-radius: 24px;
+      padding: 2.5rem;
+      color: white;
+      border: 1px solid rgba(255,255,255,0.2);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      height: 280px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .game-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #ff6b6b, #ffd93d, #43e97b);
+      transform: scaleX(0);
+      transition: transform 0.3s ease;
+    }
+
+    .game-card:hover::before {
+      transform: scaleX(1);
+    }
+
+    .game-card:hover {
+      transform: translateY(-15px) scale(1.02);
+      box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .game-icon {
+      font-size: 4rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    .game-card h3 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .game-desc {
+      font-size: 1rem;
+      line-height: 1.6;
+      text-align: center;
+      opacity: 0.9;
+      flex-grow: 1;
+    }
+
+    .play-btn {
+      background: linear-gradient(45deg, #ff6b6b, #ffd93d);
+      border: none;
+      padding: 0.8rem 2rem;
+      border-radius: 50px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 1rem;
+      font-size: 1rem;
+      align-self: center;
+    }
+
+    .play-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 10px 25px rgba(255,107,107,0.4);
+    }
+
+    .stats-bar {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 1.5rem;
+      gap: 1rem;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 1.5rem;
+      font-weight: 700;
+      display: block;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      opacity: 0.8;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .footer {
+      background: rgba(0,0,0,0.2);
+      padding: 3rem 0;
+      text-align: center;
+      color: rgba(255,255,255,0.9);
+      backdrop-filter: blur(10px);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .page-title h1 {
+        font-size: 2.5rem;
+      }
+      
+      .games-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+      
+      .navbar {
+        display: none;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .game-card {
+        padding: 2rem;
+        height: 260px;
+      }
+      
+      .game-icon {
+        font-size: 3.5rem;
+      }
+    }
+  </style>
 </head>
 <body>
+  <div class="gradient-bg">
+    <header class="header">
+      <div class="container">
+        <h1 class="logo">
+          <i class="fas fa-gamepad"></i>
+          Our World Games
+        </h1>
+      </div>
+    </header>
 
-<h1>🎮 Games Page</h1>
-<p>Button par click karo aur score badhao!</p>
+    <nav class="navbar">
+      <div class="container">
+        <a href="index.html" class="nav-link"><i class="fas fa-home"></i> Home</a>
+        <a href="apps.html" class="nav-link"><i class="fas fa-mobile-alt"></i> Apps</a>
+        <a href="games.html" class="nav-link active"><i class="fas fa-gamepad"></i> Games</a>
+        <a href="contact.html" class="nav-link"><i class="fas fa-envelope"></i> Contact</a>
+      </div>
+    </nav>
 
-<h2>Score: <span id="score">0</span></h2>
+    <main class="main-content">
+      <div class="container">
+        <section class="page-title">
+          <h1>📚 Padai Games</h1>
+          <p>सीखने को मजेदार बनाएं! Study के साथ खेलें और topper बनें 🚀</p>
+        </section>
 
-<button onclick="increaseScore()">Click Me 🎯
- </button> <h2>🎮 Online Game</h2>
+        <section class="games-grid">
+          <!-- Math Game -->
+          <div class="game-card" onclick="playMathGame()">
+            <div class="game-icon">➗</div>
+            <h3>Math Master</h3>
+            <p class="game-desc">गणित के सवालों को seconds में solve करें! Addition, Subtraction, Multiplication सब कुछ</p>
+            <div class="stats-bar">
+              <div class="stat">
+                <span class="stat-number">95%</span>
+                <span class="stat-label">Success Rate</span>
+              </div>
+              <div class="stat">
+                <span class="stat-number">2.1s</span>
+                <span class="stat-label">Avg Time</span>
+              </div>
+            </div>
+            <button class="play-btn">खेलें ➡️</button>
+          </div>
 
-<iframe 
-  src="https://poki.com/en/g/carrom-multiplayer" 
-  width="100" 
-  height="100">
-</iframe>
+          <!-- English Game -->
+          <div class="game-card" onclick="playEnglishGame()">
+            <div class="game-icon">📖</div>
+            <h3>English Wizard</h3>
+            <p class="game-desc">Spelling, Grammar, Vocabulary improve करें! English में fluent बनें</p>
+            <div class="stats-bar">
+              <div class="stat">
+                <span class="stat-number">1.2M</span>
+                <span class="stat-label">Players</span>
+              </div>
+              <div class="stat">
+                <span class="stat-number">88%</span>
+                <span class="stat-label">Win Rate</span>
+              </div>
+            </div>
+            <button class="play-btn">खेलें ➡️</button>
+          </div>
 
+          <!-- Science Game -->
+          <div class="game-card" onclick="playScienceGame()">
+            <div class="game-icon">🔬</div>
+            <h3>Science Quiz</h3>
+            <p class="game-desc">Physics, Chemistry, Biology के interesting facts सीखें! Quiz format में</p>
+            <div class="stats-bar">
+              <div class="stat">
+                <span class="stat-number">750+</span>
+                <span class="stat-label">Questions</span>
+              </div>
+              <div class="stat">
+                <span class="stat-number">92%</span>
+                <span class="stat-label">Accuracy</span>
+              </div>
+            </div>
+            <button class="play-btn">खेलें ➡️</button>
+          </div>
 
-<br><br>
-<a href="index.html">⬅ Back to Home</a>
+          <!-- GK Game -->
+          <div class="game-card" onclick="playGKGame()">
+            <div class="game-icon">🌍</div>
+            <h3>General Knowledge</h3>
+            <p class="game-desc">History, Geography, Current Affairs सब कुछ! Competitive exams के लिए perfect</p>
+            <div class="stats-bar">
+              <div class="stat">
+                <span class="stat-number">500K</span>
+                <span class="stat-label">Scores</span>
+              </div>
+              <div class="stat">
+                <span class="stat-number">4.8⭐</span>
+                <span class="stat-label">Rating</span>
+              </div>
+            </div>
+            <button class="play-btn">खेलें ➡️</button>
+          </div>
 
-<script>
-  let score = 0;
-  function increaseScore() {
-    score++;
-    document.getElementById("score").innerText = score;
-  }
-</script>
+          <!-- Word Game -->
+          <div class="game-card" onclick="playWordGame()">
+            <div class="game-icon">🔤</div>
+            <h3>Word Power</h3>
+            <p class="game-desc">Hindi & English words बनाएं! Spelling bee champion बनें</p>
+            <div class="stats-bar">
+              <div class="stat">
+                <span class="stat-number">15K</span>
+                <span class="stat-label">Daily</span>
+              </div>
+              <div class="stat">
+                <span class="stat-number">96%</span>
+                <span class="stat-label">Fun</span>
+              </div>
+            </div>
+            <button class="play-btn">खेलें ➡️</button>
+          </div>
 
+          <!-- Memory Game -->
+          <div class="game-card" onclick="playMemoryGame()">
+            <div class="game-icon">🧠</div>
+            <h3>Memory Boost</h3>
+            <p class="game-desc">Brain power बढ़ाएं! Formulas, dates सब याद रखें</p>
+            <div class="stats-bar">
+              <div class="stat">
+                <span class="stat-number">99%</span>
+                <span class="stat-label">Brain Gain</span>
+              </div>
+              <div class="stat">
+                <span class="stat-number">30s</span>
+                <span class="stat-label">Best Time</span>
+              </div>
+            </div>
+            <button class="play-btn">खेलें ➡️</button>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <p><i class="fas fa-graduation-cap"></i> Padai + Khel = Success 🚀 | © 2024 Our World</p>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // Demo Game Functions
+    function playMathGame() {
+      alert('🔢 Math Master Game शुरू! 10 seconds में 20 questions solve करें!\nScore: 95% target करें! 🎯');
+    }
+
+    function playEnglishGame() {
+      alert('📚 English Wizard! Spelling bee में part लें!\nNew words सीखें और fluent बोलें! 🌟');
+    }
+
+    function playScienceGame() {
+      alert('🔬 Science Quiz! 50+ interesting questions!\nPhysics, Chemistry, Biology सब कुछ! ⚗️');
+    }
+
+    function playGKGame() {
+      alert('🌍 General Knowledge Master! Exams के लिए perfect!\nCurrent Affairs भी included! 🏆');
+    }
+
+    function playWordGame() {
+      alert('🔤 Word Power! Hindi-English words बनाएं!\nSpelling champion बनें! 🏅');
+    }
+
+    function playMemoryGame() {
+      alert('🧠 Memory Boost! Brain power test करें!\nFormulas सब याद रखें! 💪');
+    }
+
+    // Smooth Scroll
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        document.querySelector(this.getAttribute('href')).scrollIntoView({
+          behavior: 'smooth'
+        });
+      });
+    });
+  </script>
 </body>
 </html>
